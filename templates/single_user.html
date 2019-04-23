@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if author == True %}
 <div>
-    <a href="/" role="button">
-        <button class='button'>Main Blog Page</button>
-    </a>|
- </div>
-{% endif %}
+<a href="/" role="button">
+    <button class='button'>Main Blog Page</button>
+</a>|
+</div>
 
 <h1 align="center">Build-a-Blog!</h1>
 
@@ -15,10 +13,6 @@
     <h2><a href='/single?id={{blog.id}}'>{{blog.title}}</a></h2>
     <p>{{blog.pub_date}}</p>
     <p>{{blog.body}}</p>
-    {% if author == True %}
-    <p>Written by: {{ email[blog.owner_id] }}</p>
-    {% endif %}
-
     <hr>
 
 {% endfor %}

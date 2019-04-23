@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:launchcode@localhost:8889/build-a-blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:launchcode@localhost:8889/blogz'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 app.secret_key = 'y337kGcys&zP3B'
@@ -44,9 +44,9 @@ class User(db.Model):
 
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'register']
+    allowed_routes = ['login', 'register', 'blog', 'index', 'single_user', 'single']
     if request.endpoint not in allowed_routes and 'email' not in session:
-        return redirect('/login')
+        return redirect('/index')
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -71,7 +71,7 @@ def register():
         verify = request.form['verify']
 
         if not is_email(email):
-            flash('zoiks! "' + email + '" does not seem like an email address')
+            flash('Zoiks! "' + email + '" does not seem like an email address')
             return redirect('/register')
         # TODO 1: validate that form value of 'verify' matches password
         if matches(email, verify) == True:
@@ -86,9 +86,9 @@ def register():
         db.session.add(user)
         db.session.commit()
         session['email'] = user.email
-        return redirect("/blog")
+        return redirect("/new-post")
     else:
-        return render_template('register.html')
+        return render_template('register.html', session=False)
 
 def unique_user(email):
     if User.query.filter_by(email=email).first():
@@ -121,17 +121,41 @@ def logout():
     del session['email']
     return redirect('/')
 
-@app.route('/')
+@app.route('/index')
 def index():
+    users = User.query.all()
+    return render_template('index.html', users=users, session=False)
+
+@app.route('/')
+def root():
+    if 'email' not in session:
+        return redirect('/index')
+        
     owner = User.query.filter_by(email=session['email']).first()
     blogs = Blog.query.filter_by(owner=owner).order_by(Blog.pub_date.desc()).all()
 
-    return render_template('blog.html', title="Build-a-Blog!", blogs=blogs)
+    return render_template('blog.html', title="Build-a-Blog!", blogs=blogs, session=True)
     
+    
+@app.route('/single_user')
+def single_user():
+    owner_id = request.args.get('id')
+    blogs = Blog.query.filter_by(owner_id=owner_id).all()
+    return render_template('single_user.html', blogs=blogs, session=False)
 
-@app.route('/blog')
+@app.route('/blog',  methods=['GET'])
 def blog():
-    return render_template('blog.html')
+
+    id = request.args.get('id')
+    if id:
+        blogs = db.session.query(Blog).join(User, Blog.owner_id==User.id)
+        email ={}
+        for user in User.query.all():
+            email[user.id] = user.email
+        
+        return render_template('blog.html', blogs=blogs, session=False, email=email, author=True)
+    
+    return render_template('blog.html', session=True)
 
 
 @app.route('/new-post', methods=['POST', 'GET'])
@@ -142,6 +166,14 @@ def new_post():
         title = request.form['title']
         pub_date = datetime.utcnow()
         body = request.form['blog']
+
+        if title =="":
+            flash('Please add a title to your blog')
+            return redirect('/new-post')
+        if body=="":
+            flash('Please add content to your blog')
+            return redirect('/new-post')
+
         user = User.query.filter_by(email=session['email']).first()
         owner_id = user.id
         new_blog = Blog(title=title, body=body, pub_date=pub_date, owner_id=owner_id)
@@ -150,13 +182,13 @@ def new_post():
         return redirect('/single?id=' + str(new_blog.id))
 
 
-    return render_template('new-post.html')
+    return render_template('new-post.html', session=True)
 
 @app.route('/single', methods=['POST', 'GET'])
 def single_blog():
     id = request.args.get('id')
     blog = Blog.query.get(id)
-    return render_template('single.html', blog=blog)
+    return render_template('single.html', blog=blog, session=True)
 
 if __name__ == '__main__':
     app.run()

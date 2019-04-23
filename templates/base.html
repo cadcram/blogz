@@ -7,20 +7,20 @@
                 color: red
             }
         </style>
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="{{url_for('static', filename='./css/style.css') }}">
     </head>
 <body>
 
-    {% if session %}
+    {% if session == True %}
     <div>
         <a href="/" role="button">
-        <button>Main Blog Page</button>
+        <button class='button'>Main Blog Page</button>
         </a>|
         <a href="/new-post" role="button">
-            <button>Add a Blog Entry</button>
+            <button class='button'>Add a Blog Entry</button>
             </a>|
         <a href='/logout' role="button">
-            <button>Log Out</button>
+            <button class='button'>Log Out</button>
         </a>
     </div>
     {% endif %}
