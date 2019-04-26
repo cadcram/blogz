@@ -5,5 +5,6 @@
 <h1 align="center">{{ blog.title }}</h1>
 <p>{{ blog.pub_date }}</p>
 <p>{{ blog.body }}</p>
+<p>Written by: <a href="/single_user?id={{blog.owner_id}}">{{ email[blog.owner_id] }}</a></p>
 
 {% endblock %}

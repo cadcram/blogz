@@ -16,7 +16,7 @@
     <p>{{blog.pub_date}}</p>
     <p>{{blog.body}}</p>
     {% if author == True %}
-    <p>Written by: {{ email[blog.owner_id] }}</p>
+    <p>Written by: <a href="/single_user?id={{blog.owner_id}}">{{ email[blog.owner_id] }}</a></p>
     {% endif %}
 
     <hr>

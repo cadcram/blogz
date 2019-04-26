@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+<link rel="stylesheet" href="{{url_for('static', filename='./css/style.css') }}">
+
+
 <div align="right">
 <a href="/login" role="button">
     <button class='button'>Login</button>
@@ -12,14 +16,23 @@
 
 <a href="/blog?id=1">All Posts</a>
 
-<h1 align="center">Build-a-Blog!</h1>
-<br>
+<div class="header">
+    <h2 class="header">Build-A-Blog</h2>
+</div>
 
-<div>
-<ul>
-{% for user in users %}
-    <li><a href='/single_user?id={{ user.id }}'>{{user.email}}</a></li>
-{% endfor %}
-</ul>
+<div class="row">
+        
+    <div class="column side">Users:</div>
+
+    <div class="column middle">
+        <ul>
+        {% for user in users %}
+            <li><a href='/single_user?id={{ user.id }}'>{{user.email}}</a></li>
+        {% endfor %}
+        </ul>
+    </div>
+
+    <div class="column side"><em>Brought to you by CadenCo&#0153;</em></div>
+              
 </div>
 {% endblock %}
